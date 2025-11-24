@@ -410,3 +410,44 @@ print(classification_report(y_test, rf_bal_pred, target_names=le.classes_))
 
 print("\nNeural Network (Balanced) Classification Report:")
 print(classification_report(y_test, nn_bal_pred, target_names=le.classes_))
+
+# Calculate per-class accuracy for RF Balanced
+cm_rf_bal = confusion_matrix(y_test, rf_bal_pred)
+per_class_acc_rf_bal = cm_rf_bal.diagonal() / cm_rf_bal.sum(axis=1)
+
+# Calculate per-class accuracy for NN Balanced
+cm_nn_bal = confusion_matrix(y_test, nn_bal_pred)
+per_class_acc_nn_bal = cm_nn_bal.diagonal() / cm_nn_bal.sum(axis=1)
+
+# Create a DataFrame with all per-class accuracies
+per_class_comparison = pd.DataFrame({
+    'Class': le.classes_,
+    'RF_Regular': per_class_acc_rf,
+    'NN_Regular': per_class_acc_nn,
+    'RF_Balanced': per_class_acc_rf_bal,
+    'NN_Balanced': per_class_acc_nn_bal
+})
+
+# Create a grouped bar chart for per-class accuracy comparison
+plt.figure(figsize=(16, 8))
+x = np.arange(len(le.classes_))
+width = 0.2
+
+plt.bar(x - 1.5*width, per_class_comparison['RF_Regular'], width, label='RF Regular', color='blue', alpha=0.8)
+plt.bar(x - 0.5*width, per_class_comparison['NN_Regular'], width, label='NN Regular', color='purple', alpha=0.8)
+plt.bar(x + 0.5*width, per_class_comparison['RF_Balanced'], width, label='RF Balanced', color='skyblue', alpha=0.8)
+plt.bar(x + 1.5*width, per_class_comparison['NN_Balanced'], width, label='NN Balanced', color='violet', alpha=0.8)
+
+plt.xlabel('Cyclone Status Class', fontsize=12)
+plt.ylabel('Accuracy', fontsize=12)
+plt.title('Per-class Accuracy Comparison Across All Models', fontsize=14, fontweight='bold')
+plt.xticks(x, le.classes_, rotation=45, ha='right', fontsize=10)
+plt.ylim(0, 1.05)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.legend(title='Models', fontsize=10, title_fontsize=11)
+plt.tight_layout()
+plt.show()
+
+# Also create a summary table of per-class accuracies
+print("\nPer-class Accuracy Comparison Table:")
+print(per_class_comparison.round(4).to_string(index=False))
